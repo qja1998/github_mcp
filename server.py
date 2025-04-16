@@ -76,9 +76,12 @@ async def main():
                 "-i",
                 "--rm",
                 "-e",
-                f"GITHUB_PERSONAL_ACCESS_TOKEN={GITHUB_PERSONAL_ACCESS_TOKEN}",
+                "GITHUB_PERSONAL_ACCESS_TOKEN",
                 "ghcr.io/github/github-mcp-server"
-            ]
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": GITHUB_PERSONAL_ACCESS_TOKEN,
+            }
         },
     ) as server:
         with trace(workflow_name="MCP Git Example"):
