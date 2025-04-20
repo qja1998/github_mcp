@@ -5,26 +5,28 @@ import os
 import dotenv
 dotenv.load_dotenv()
 
+from typing import List
 from collections import deque
 
 GITHUB_PERSONAL_ACCESS_TOKEN = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 
-from agents import Agent, Runner, trace, WebSearchTool, FileSearchTool
+from agents import Agent, Runner, trace, WebSearchTool
 from agents.mcp import MCPServer, MCPServerStdio
 
-async def run(mcp_server: MCPServer):
+async def run(mcp_servers: List[MCPServer]):
     agent = Agent(
         model=OPENAI_MODEL,
         name="Assistant",
         instructions=f"Answer questions about the notion documents",
-        mcp_servers=[mcp_server],
-        tools=[WebSearchTool(), FileSearchTool()]
+        mcp_servers=mcp_servers,
+        tools=[WebSearchTool()]
     )
 
+    print("Agent initialized.")
+
     PROMPT = f"""
-    You are a potfolio assistant.
-    PPT 형태로 내용들을 정리하여 제공하세요.
+    당신은 ppt 전문가입니다.
     """
 
     chat_history = deque([], maxlen=5)
@@ -44,7 +46,7 @@ async def run(mcp_server: MCPServer):
         # Run the command and print the result
         print("\n" + "-" * 40)
         print(f"Running: {command}")
-        result = await Runner.run(starting_agent=agent, input=prompt, max_turns=20)
+        result = await Runner.run(starting_agent=agent, input=prompt, max_turns=30)
         print(result.final_output)
         current_chat = [
             {"role": "user", "content": command},
@@ -54,39 +56,64 @@ async def run(mcp_server: MCPServer):
         print("\n" + "-" * 40)
 
 
-PPT_MCP_PATH = r"/Users/kwon/Desktop/repository/github_mcp/ppt/Office-PowerPoint-MCP-Server/ppt_mcp_server.py"
+PPT_MCP_PATH = r"C:\Users\kwon\Desktop\repo\github_mcp\ppt\powerpoint"
+
+
+def init_servers():
+    # Initialize the MCP server with the specified parameters
+    print("Initializing PPT servers...")
+
+    server1 = MCPServerStdio(
+        # params={
+        #     "command": "uv",
+        #     "args": ["run", "ppt/main.py"]
+        # }
+        params={
+            "command": "uv",
+            # "env": {
+            #     "TOGETHER_API_KEY": "api_key"
+            # },
+            "args": [
+                "--directory",
+                PPT_MCP_PATH,
+                "run",
+                "powerpoint",
+                "--folder-path",
+                "./ppt_result"
+            ]
+        }
+    )
+
+    server1_1 = MCPServerStdio(
+        params={
+            "command": "uv",
+            "args": [
+                "run,"
+                "pptx-xlsx-mcp/mcp_powerpoint_server_win32.py"
+            ]
+        }
+    )
+
+    print("Initializing File System servers...")
+
+    server2 = MCPServerStdio(
+        name="Filesystem Server, via npx",
+        params={
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", r"C:\Users\kwon\Desktop\repo\github_mcp\ppt\template"],
+        }
+    )
+
+    return server1, server1_1, server2
 
 async def main():
     # Ask the user for the directory path
-
-    async with MCPServerStdio(
-        cache_tools_list=True,  # Cache the tools list, for demonstration
-        # params={
-        #     "command": "uv",
-        #     "env": {
-        #         "SD_WEBUI_URL": "http://localhost:7860",
-        #         "SD_AUTH_USER": "ppt-mcp",
-        #         "SD_AUTH_PASS": "1234",
-        #     },
-        #     "args": [
-        #         "--directory",
-        #         PPT_MCP_PATH,
-        #         "run",
-        #         "powerpoint",
-        #         "--folder-path",
-        #         "./ppt_result"
-        #     ]
-        # }
-        params={
-            "command": "python",
-            "args": [PPT_MCP_PATH],
-            "env": {}
-        }
-    ) as server:
-        print("setted ppt server")
+    server1, server1_1, server2 = init_servers()
+    async with server1 as s1, server1_1 as s1_1, server2 as s2:
+        # Create the MCP server and start it
+        mcp_servers = [s1_1, s2]
         with trace(workflow_name="MCP PPT Example"):
-            await run(server)
-
+            await run(mcp_servers=mcp_servers)
 
 if __name__ == "__main__":
     # if not shutil.which("uv"):
