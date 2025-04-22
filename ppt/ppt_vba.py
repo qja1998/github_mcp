@@ -8,7 +8,7 @@ import re # For parsing VBA code
 
 from pptx import Presentation
 
-import aspose.slides as slides
+CUR_PATH = os.path.dirname(__file__)
 
 # --- Configuration ---
 load_dotenv()
@@ -25,18 +25,77 @@ VBA_ENTRY_POINT_MACRO = "CreatePresentationFromData"
 
 # --- Functions ---
 
-def convert_pptx_to_pptm(pptx_path, pptm_path):
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def convert_pptx_to_pptm(pptx_path: str, pptm_path: str) -> bool:
     """
-    Converts a .pptx file to .pptm format.
+    Converts a .pptx file to a .pptm file using PowerPoint's SaveAs method.
 
     Args:
-        pptx_path (str): Path to the input .pptx file.
-        pptm_path (str): Path to save the output .pptm file.
+        pptx_path: Path to the source .pptx file.
+        pptm_path: Path to save the destination .pptm file.
+
+    Returns:
+        True if conversion was successful, False otherwise.
     """
-    print(f"Converting {pptx_path} to {pptm_path}...")
+    if not os.path.exists(pptx_path):
+        logging.error(f"Source file not found: {pptx_path}")
+        return False
 
-    pptm_path
+    if not pptx_path.lower().endswith(".pptx"):
+        logging.warning(f"Source file is not a .pptx file: {pptx_path}")
+        # You might still want to proceed if the user insists, but it's unusual.
+        # return False # Or continue cautiously
 
+    if not pptm_path.lower().endswith(".pptm"):
+        logging.warning(f"Output path {pptm_path} should ideally end with .pptm. Adjusting.")
+        pptm_path = os.path.splitext(pptm_path)[0] + ".pptm"
+
+    powerpoint = None
+    presentation = None
+    success = False
+
+    try:
+        logging.info("Starting PowerPoint application...")
+        powerpoint = win32com.client.DispatchEx("PowerPoint.Application")
+        # Keep PowerPoint invisible during conversion
+        # powerpoint.Visible = False
+
+        logging.info(f"Opening source file: {pptx_path}")
+        # Ensure paths are absolute for COM
+        abs_pptx_path = os.path.abspath(pptx_path)
+        abs_pptm_path = os.path.abspath(pptm_path)
+
+        presentation = powerpoint.Presentations.Open(abs_pptx_path, WithWindow=False)
+
+        logging.info(f"Saving as .pptm format to: {abs_pptm_path}")
+        # FileFormat Enumeration for .pptm is 25 (ppSaveAsMacroEnabledPresentation)
+        presentation.SaveAs(abs_pptm_path, FileFormat=25)
+        success = True
+        logging.info("File successfully saved in .pptm format.")
+
+    except Exception as e:
+        logging.error(f"Error during conversion: {e}", exc_info=True)
+        success = False
+    finally:
+        # Ensure resources are released
+        if presentation:
+            try:
+                presentation.Close()
+            except Exception as e_close:
+                logging.error(f"Error closing presentation: {e_close}")
+        if powerpoint:
+            try:
+                powerpoint.Quit()
+            except Exception as e_quit:
+                logging.error(f"Error quitting PowerPoint: {e_quit}")
+        # Clean up COM objects
+        presentation = None
+        powerpoint = None
+        # import gc
+        # gc.collect() # Force garbage collection if needed
+
+    return success
 def extract_vba_from_ppt(ppt_path: str) -> str | None:
     """
     Extracts VBA code from the standard modules of a PowerPoint file.
@@ -166,36 +225,31 @@ def generate_vba_with_ai(template_vba: str, user_data: dict) -> str | None:
     Analyze the following template VBA code for PowerPoint:
     ```vb
     {template_vba}
-    ```
+    Now, generate new VBA code for Microsoft PowerPoint.
+    This new code should perform a similar function to the template (e.g., creating slides with titles and bullet points), but it must attempt to extract relevant information from the following user-provided natural language data to create a PowerPoint presentation:
 
-    Now, generate **new** VBA code for Microsoft PowerPoint.
-    This new code should perform a similar *function* to the template (e.g., creating slides with titles and bullet points), but it must use the following user-provided data:
-
-    ```json
     {user_data}
-    ```
+    Instructions for Generation:
 
-    **Instructions for Generation:**
-    1.  Create a main public subroutine named `{VBA_ENTRY_POINT_MACRO}`. This subroutine will be called to generate the presentation content.
-    2.  Inside `{VBA_ENTRY_POINT_MACRO}`, use the provided JSON data to create the PowerPoint slides.
-    3.  For each item in the 'slides' array in the JSON data:
-        * Add a new slide.
-        * Set the slide title using the 'title' field.
-        * Add the bullet points from the 'points' array to the slide's content placeholder. If the template used a specific layout or placeholder index, try to replicate that. If not, use standard methods like `Shapes.Placeholders(2)`.
-    4.  The generated code should be self-contained and runnable within a standard VBA module in PowerPoint.
-    5.  Do **not** include the original template code in your response unless it's being adapted.
-    6.  Focus on generating **only the VBA code** itself, without any introductory text, explanations, or markdown formatting around the code block.
-    7.  Make sure the generated VBA code is syntactically correct.
-    8.  Handle potential errors gracefully within the VBA if possible (e.g., check if placeholders exist).
-    9.  Use `Option Explicit` at the beginning of the module.
-
-    **Generated VBA Code:**
+    Create a main public subroutine named {VBA_ENTRY_POINT_MACRO}. This subroutine will be called to generate the presentation content.
+    Inside {VBA_ENTRY_POINT_MACRO}, intelligently parse the provided natural language data to identify potential slide titles and bullet points. This might involve looking for headings, lists, or sentences that could serve as titles or main points.
+    For each identified potential slide:
+    Add a new slide.
+    Set the slide title using the extracted title information. If no clear title is found, use a generic title like "Slide X".
+    Add any identified bullet points to the slide's content placeholder. If the template used a specific layout or placeholder index, try to replicate that. If not, use standard methods like Shapes.Placeholders(2).
+    The generated code should be self-contained and runnable within a standard VBA module in PowerPoint.
+    Do not include the original template code in your response unless it's being adapted.
+    Focus on generating only the VBA code itself, without any introductory text, explanations, or markdown formatting around the code block.
+    Make sure the generated VBA code is syntactically correct.
+    Handle potential errors gracefully within the VBA if possible (e.g., check if placeholders exist).
+    Use Option Explicit at the beginning of the module.
+    Generated VBA Code:
     """
 
     try:
         # Using the chat completions endpoint (recommended)
         response = openai.chat.completions.create(
-            model="gpt-4-turbo",  # Or "gpt-3.5-turbo", choose based on need/cost
+            model="gpt-4o-mini",  # Or "gpt-3.5-turbo", choose based on need/cost
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that generates Microsoft PowerPoint VBA code."},
                 {"role": "user", "content": prompt}
@@ -316,24 +370,53 @@ def create_ppt_with_vba(generated_vba: str, output_path: str, entry_point_macro:
 
 # --- Main Execution ---
 if __name__ == "__main__":
-    template_file = r"C:\Users\SSAFY\Desktop\repo\github_mcp\ppt\sample_ppt.pptx"
-    if template_file.endswith(".pptx"):
-        # Convert to .pptm if necessary
-        old_template_file = template_file
-        template_file = old_template_file.replace(".pptx", ".pptm")
-        convert_pptx_to_pptm(old_template_file, template_file)
+    # template_file = os.path.join(CUR_PATH, "sample_ppt.pptx")
+    # if template_file.endswith(".pptx"):
+    #     # Convert to .pptm if necessary
+    #     old_template_file = template_file
+    #     template_file = old_template_file.replace(".pptx", ".pptm")
+    #     convert_pptx_to_pptm(old_template_file, template_file)
 
     # Example: C:\\Users\\YourUser\\Documents\\Template.pptm
     output_file = "sample_output.pptm"
     # Example: C:\\Users\\YourUser\\Documents\\GeneratedPresentation.pptm
 
-    # Ensure absolute paths are used for COM interaction
-    template_file = os.path.abspath(template_file)
-    output_file = os.path.abspath(output_file)
+    # # Ensure absolute paths are used for COM interaction
+    # template_file = os.path.abspath(template_file)
+    # output_file = os.path.abspath(output_file)
 
-    # 1. Extract VBA from template
-    logging.info("--- Step 1: Extracting VBA ---")
-    template_vba_code = extract_vba_from_ppt(template_file)
+    # # 1. Extract VBA from template
+    # logging.info("--- Step 1: Extracting VBA ---")
+    # template_vba_code = extract_vba_from_ppt(template_file)
+    template_vba_code = """
+Sub FillTextBoxesAutomatically()
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim contentList As Variant
+    Dim i As Integer
+
+    ' 채워넣을 텍스트 배열 (필요에 맞게 수정 가능)
+    contentList = Array("김미리 프로필", "20YY.03.06", "0000@miridih.com", _
+                        "미리코스메틱 신제품 네이밍 공모전", "미리대학교 홍보 모델", _
+                        "퍼스널 브랜딩 스토어 운영")
+
+    ' 첫 번째 슬라이드에 텍스트 채워넣기
+    Set sld = ActivePresentation.Slides(1)
+
+    i = 0
+    For Each shp In sld.Shapes
+        If shp.HasTextFrame Then
+            If shp.TextFrame.HasText Then
+                shp.TextFrame.TextRange.Text = contentList(i Mod UBound(contentList) + 1)
+                i = i + 1
+                If i > UBound(contentList) Then Exit For
+            End If
+        End If
+    Next shp
+
+    MsgBox "슬라이드 텍스트 자동 입력 완료!"
+End Sub
+"""
 
     if template_vba_code:
         logging.info("Template VBA extracted successfully.")
@@ -342,7 +425,186 @@ if __name__ == "__main__":
 
         # 2. Get user input
         logging.info("--- Step 2: Getting User Input ---")
-        user_content = get_user_input()
+        # user_content = get_user_input()
+        user_content = """
+        <div>
+  <!--Header-->
+  
+  ![header](https://capsule-render.vercel.app/api?type=venom&color=gradient&height=300&section=header&text=Germanus'%20GitHub)
+  
+</div>
+
+<div>
+  <!--Body-->
+  
+  ## 👀 About Me
+  #### :fire: AI / Backend / DevOps 개발자가 되기 위해 공부하고 있습니다.<br/>
+  #### :mortar_board: 경상국립대학교(GNU), 항공우주및소프트웨어공학전공
+
+  ### BOJ Rating
+  [![Solved.ac 프로필](https://mazassumnida.wtf/api/v2/generate_badge?boj=qja1998)](https://solved.ac/qja1998)
+  <br/>
+  
+  ## Main Experience
+
+  ### **2021**
+  - **[경상대 소프트웨어 구조 및 진화 연구실](https://www.gnu.ac.kr/soft/cm/cntnts/cntntsView.do?mi=13887&cntntsId=6492)**
+    - [직책]
+      - 학부 연구생
+    - 관련 활동은 📚로 표시
+  - **[BookCafe](https://saleese-gnu.github.io/bookcafe/)**
+    - 카페 예약 시스템
+    - 개발 인원: 4인
+    - 개발 기간: 3개월
+    - 역할: Andriod App 부분 개발(Kotlin)
+
+  ### **2022**
+
+  - **DIYA AI 연합 동아리**
+    - [Dacon](https://dacon.io/myprofile/421883/home) 경진대회 참여
+    - ~~[VAE 기반의 음성 style 변경 프로젝트](https://github.com/qja1998/audio)~~
+  - **[경상대 SW 개발론 페이지 개발](https://saleese-gnu.github.io/)** 📚
+    - Ruby 기반 GitHub page 구현 (1인 개발)
+  - **코딩 하루 학원 강사**
+    - [Streamlit 기반의 style transfer 앱 특강](https://github.com/qja1998/style_transform_with_streamlit)
+
+  ### **2023**
+
+  - **[AI 기반 탄소 배출량 관리 시스템](https://github.com/qja1998/co2-emission-management)**
+    - [개요]
+      - 기업의 탄소 배출량을 추적, 예측, 분석하여 관리가 용이하도록 하는 시스템 개발
+    - [직책/역할]
+      - 팀장
+      - Backend(Django)
+      - AI(탄소 배출량 예측)
+      - 환경 관리(Docker)
+  - **[BERT 기반 LLM 연구 시작](https://github.com/qja1998/pretrain_issue_bert)** 📚
+    - [개요]
+      - SW Issue Report에 특화된 LLM 제시 및 분류 성능 개선
+    - [역할]
+      - 언어 모델 pre-training
+  - **빅데이터 시스템 소프트웨어 연구실**
+    - AI 기반 탄소 배출량 관리 시스템의 고도화 및 주요 기능 특허 출원
+    - [직책]
+      - 외부 인력(학부 연구생)
+      - 탄소 배출량 예측 모델 개선
+      - 특허 출원 기능 자문
+
+  ### **2024**
+
+  - **[A Comparison of Pretrained Models for Classifying Issue Reports, IEEE Access](https://ieeexplore.ieee.org/document/10546475)** 📚
+    - BERT 기반 연구가 완료되어 게재
+  - **경상국립대학교(GNU), 항공우주및소프트웨어공학전공 졸업**
+  - SSAFY 12기 - DATA track 1기 1학기 수료
+    - [알고리즘 스터디 진행](https://github.com/qja1998/SSAFY_algorithm_study) - 스터디장
+    - [Docker 스터디 진행](https://github.com/qja1998/SSAFY-Docker-Study)
+  - DPG 해커톤 본선(전국 10위 이내) 진출
+    - [RAG 기반 금융 도우미 및 상품 추천 시스템 개발](https://github.com/qja1998/nunuDream_rag)
+
+  ### **2025**
+
+  - SSAFY 12기 - DATA track 1기 2학기 진행중
+    - MoMoSo 개발
+      - [개요]
+        - AI 기반 소설 작성
+        - 소설 실시간 음성 토론
+      - [역할]
+        - Infra(Docker, GitLab CI)
+        - RAG(Langchain)
+        - 이미지 생성(Stable Diffusion)
+    - [알고리즘 스터디 진행](https://github.com/qja1998/CoyoTe) - 스터디장
+
+  ### Achievement
+
+  - **2023 캡스톤디자인 작품 전시 및 발표회** - 금상
+  - **2023 스마트 시티&모빌리티 캡스톤디자인 경진대회** - 은상
+  - **탄소 배출량 예측 및 관리 시스템, 그리고, 그 방법** - 특허 출원
+  - **2023 우수성과발표회** - 우수상(개인)
+  - **[A Comparison of Pretrained Models for Classifying Issue Reports, IEEE Access](https://ieeexplore.ieee.org/document/10546475)** 📚
+  - **DPG 해커톤 본선**
+
+  <br/>
+  
+  ## 🧱 Tech Stack
+  ### Language
+  <!--Python-->
+  <img src="https://img.shields.io/badge/Python%20IDLE-3776AB?logo=python&logoColor=fff"/>
+  <!--MySQL-->
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=fff"/>
+  <br/>
+  
+  ### AI / Data Science
+  <!--PyTorch-->
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?&logo=PyTorch&logoColor=white"/>
+  <!--Hugging Face-->
+  <img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?logo=huggingface&logoColor=000"/>
+  <!--Pandas-->
+  <img src="https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=fff)"/>
+  <!--Numpy-->
+  <img src="https://img.shields.io/badge/NumPy-4DABCF?logo=numpy&logoColor=fff"/>
+  <!--Matplotlib-->
+  <img src="https://custom-icon-badges.demolab.com/badge/Matplotlib-71D291?logo=matplotlib&logoColor=fff"/>
+  <br/>
+  
+  ### CI/CD
+  <!--Docker-->
+  <img src="https://img.shields.io/badge/docker-2496ED?&logo=docker&logoColor=white"/>
+  <!--GitLab CI-->
+  <img src="https://img.shields.io/badge/GitLab%20CI-FC6D26?logo=gitlab&logoColor=fff"/>
+  <!--GitLab CI/CD-->
+  <img src="https://img.shields.io/badge/Jenkins-D24939?logo=jenkins&logoColor=white"/>
+
+  ### Backend
+  <!--Django-->
+  <img src="https://img.shields.io/badge/Django-092E20?&logo=Django&logoColor=white"/>
+  <!--FastAPI-->
+  <img src="https://img.shields.io/badge/FastAPI-009485.svg?logo=fastapi&logoColor=white"/>
+  <br/>
+  
+
+  ### Tools
+  <!--git-->
+  <img src="https://img.shields.io/badge/git-F05032?&logo=git&logoColor=white"/>
+  <!--github-->
+  <img src="https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white"/>
+  <!--jupyter-->
+  <img src="https://img.shields.io/badge/jupyter-F37626?&logo=jupyter&logoColor=white"/>
+  <!--notion-->
+  <img src="https://img.shields.io/badge/notion-000000?&logo=notion&logoColor=white"/>
+  <!--colab-->
+  <img src="https://img.shields.io/badge/Google%20Colab-F9AB00?logo=googlecolab&logoColor=fff"/>
+  <br/>
+
+  ### ETC.
+  <!--Selenium-->
+  <img src="https://img.shields.io/badge/Selenium-43B02A?logo=selenium&logoColor=fff"/>
+  <!--Anaconda-->
+  <img src="https://img.shields.io/badge/Anaconda-44A833?logo=anaconda&logoColor=fff"/>
+  <br/>
+  
+  ## 🤔 Github Stats
+  ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=qja1998&theme=nord_dark)
+
+  ![](https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=qja1998&theme=nord_dark)
+  ![](https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=qja1998&theme=nord_dark)
+
+  ![](https://github-profile-summary-cards.vercel.app/api/cards/stats?username=qja1998&theme=nord_dark)
+  
+  ## Contact
+
+  - **Blog**
+    <!--Blog-->
+    <a href="https://qja1998.github.io/">
+      <img src="https://img.shields.io/website-up-down-green-red/https/qja1998.github.io"/>
+    </a>
+  - **Mail**
+    <!--Mail-->
+    <a href="mailto:rnjsrljqa98@gmail.com">
+      <img src="https://img.shields.io/badge/gmail-EA4335?&logo=gmail&logoColor=white"/>
+    </a>
+</div>
+
+        """
 
         # 3. Generate new VBA using AI
         logging.info("--- Step 3: Generating VBA with AI ---")
