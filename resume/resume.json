@@ -1,0 +1,176 @@
+{
+    "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+    "basics": {
+      "name": "qja1998",
+      "label": "Full Stack & AI Developer",
+      "image": "",
+      "email": "",
+      "phone": "",
+      "url": "https://github.com/qja1998",
+      "summary": "Passionate software engineer specializing in web development, data science, and AI-driven applications. Contributor to multiple open‑source projects and committed to building performant, maintainable, and user‑centric software.",
+      "location": {
+        "address": "",
+        "postalCode": "",
+        "city": "",
+        "countryCode": "KR",
+        "region": ""
+      },
+      "profiles": [
+        {
+          "network": "GitHub",
+          "username": "qja1998",
+          "url": "https://github.com/qja1998"
+        }
+      ]
+    },
+    "theme": "elegant",
+    "work": [
+      {
+        "name": "SSAFY (Samsung SW Academy For Youth)",
+        "position": "Full Stack Developer (Trainee)",
+        "url": "https://github.com/qja1998/SSAFY_algorithm_study",
+        "startDate": "2023-03-01",
+        "endDate": "2024-02-29",
+        "summary": "Completed intensive full‑stack curriculum, built containerized services and algorithms projects in teams using Docker, Spring Boot, React, and AWS.",
+        "highlights": [
+          "Led Docker‑based microservice deployment tests (SSAFY_project_docker_test)",
+          "Studied and implemented classical algorithms and data structures (SSAFY_algorithm_study)"
+        ]
+      }
+    ],
+    "education": [
+      {
+        "institution": "Self‑Directed & Online Courses",
+        "url": "",
+        "area": "Computer Science & Machine Learning",
+        "studyType": "Ongoing",
+        "startDate": "2020-01-01",
+        "endDate": "",
+        "score": "",
+        "courses": [
+          "Deep Learning Specialization",
+          "Advanced Python Programming",
+          "Data Structures & Algorithms"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Audio Emotional Music Generative Model",
+        "description": "Generative AI model to compose music based on emotional input.",
+        "highlights": [
+          "Designed end‑to‑end pipeline for training on emotional datasets",
+          "Deployed interactive demo with Streamlit"
+        ],
+        "keywords": ["Python", "TensorFlow", "Deep Learning", "Streamlit"],
+        "startDate": "2024-01-01",
+        "endDate": "2024-03-01",
+        "url": "https://github.com/qja1998/audio-emotional_music_generative_model",
+        "roles": ["Researcher", "ML Engineer"],
+        "entity": "Personal",
+        "type": "project"
+      },
+      {
+        "name": "CO₂ Emission Forecast & Management",
+        "description": "Web application forecasting CO₂ emissions for Korea’s regions using time‑series models.",  
+        "highlights": [
+          "Built predictive models (ARIMA, LSTM) for CO₂ forecasting",
+          "Integrated interactive dashboards with Streamlit"
+        ],
+        "keywords": ["Python", "Pandas", "scikit‑learn", "Streamlit"],
+        "startDate": "2023-10-01",
+        "endDate": "2023-12-15",
+        "url": "https://github.com/qja1998/co2_forecast",
+        "roles": ["Data Scientist", "Full Stack Developer"],
+        "entity": "Personal",
+        "type": "project"
+      },
+      {
+        "name": "Style Transform with Streamlit",
+        "description": "Real‑time style transfer web app allowing users to apply artistic filters to images.",     
+        "highlights": [
+          "Implemented neural style transfer in PyTorch",
+          "Created intuitive UI with Streamlit"
+        ],
+        "keywords": ["Python", "PyTorch", "Streamlit"],
+        "startDate": "2023-08-01",
+        "endDate": "2023-09-01",
+        "url": "https://github.com/qja1998/style_transform_with_streamlit",
+        "roles": ["Developer"],
+        "entity": "Personal",
+        "type": "project"
+      },
+      {
+        "name": "MarTogether",
+        "description": "Social networking platform for maritime enthusiasts to share logs and photos.",
+        "highlights": [
+          "Developed RESTful API with Django REST Framework",
+          "Deployed on AWS EC2 with CI/CD pipelines"
+        ],
+        "keywords": ["Python", "Django", "Docker", "AWS"],
+        "startDate": "2023-05-01",
+        "endDate": "2023-07-01",
+        "url": "https://github.com/qja1998/MarTogether",
+        "roles": ["Backend Engineer", "DevOps"],
+        "entity": "Personal",
+        "type": "application"
+      },
+      {
+        "name": "NunuDream RAG (Retrieval‑Augmented Generation)",
+        "description": "Chatbot that provides dynamic knowledge answers using retrieval‑augmented techniques.",    
+        "highlights": [
+          "Integrated vector database for document retrieval",
+          "Fine‑tuned LLM prompts for accuracy"
+        ],
+        "keywords": ["Python", "LangChain", "FAISS", "OpenAI API"],
+        "startDate": "2023-02-01",
+        "endDate": "2023-04-01",
+        "url": "https://github.com/qja1998/nunuDream_rag",
+        "roles": ["AI Engineer"],
+        "entity": "Personal",
+        "type": "project"
+      }
+    ],
+    "skills": [
+      {
+        "name": "Programming Languages",
+        "level": "Experienced",
+        "keywords": ["Python", "JavaScript", "Java"]
+      },
+      {
+        "name": "Frameworks & Tools",
+        "level": "Experienced",
+        "keywords": ["Django", "React", "Docker", "Streamlit"]
+      },
+      {
+        "name": "Machine Learning & AI",
+        "level": "Intermediate",
+        "keywords": ["TensorFlow", "PyTorch", "scikit‑learn", "LangChain"]
+      },
+      {
+        "name": "Cloud & DevOps",
+        "level": "Intermediate",
+        "keywords": ["AWS", "CI/CD", "GitHub Actions"]
+      }
+    ],
+    "languages": [
+      {
+        "language": "Korean",
+        "fluency": "Native"
+      },
+      {
+        "language": "English",
+        "fluency": "Professional"
+      }
+    ],
+    "interests": [
+      {
+        "name": "Open Source",
+        "keywords": ["Community Contribution", "Hackathons"]
+      },
+      {
+        "name": "AI Research",
+        "keywords": ["NLP", "Computer Vision"]
+      }
+    ]
+  }
