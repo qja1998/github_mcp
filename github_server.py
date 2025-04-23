@@ -4,6 +4,7 @@ import shutil
 import os
 import dotenv
 dotenv.load_dotenv()
+ROOT = os.path.abspath(os.path.dirname(__file__))
 
 from collections import deque
 

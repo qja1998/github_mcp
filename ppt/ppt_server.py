@@ -86,10 +86,11 @@ def init_servers():
 
     server1_1 = MCPServerStdio(
         params={
-            "command": "uv",
+            "command": "npx",
             "args": [
-                "run,"
-                "pptx-xlsx-mcp/mcp_powerpoint_server_win32.py"
+                "-y",
+                "@canva/cli@latest",
+                "mcp"
             ]
         }
     )
@@ -111,7 +112,7 @@ async def main():
     server1, server1_1, server2 = init_servers()
     async with server1 as s1, server1_1 as s1_1, server2 as s2:
         # Create the MCP server and start it
-        mcp_servers = [s1_1, s2]
+        mcp_servers = [s1_1]
         with trace(workflow_name="MCP PPT Example"):
             await run(mcp_servers=mcp_servers)
 

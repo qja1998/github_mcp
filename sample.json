@@ -1,0 +1,40 @@
+{
+    "Slides": [
+      {
+        "Shapes": [
+          {
+            "Type": "TextBox",
+            "Text": "Aspose Cells JSON to PowerPoint",
+            "X": 100,
+            "Y": 50,
+            "Width": 500,
+            "Height": 50,
+            "Font": {
+              "Name": "Arial",
+              "Size": 24,
+              "Bold": true,
+              "Color": "Black"
+            }
+          },
+          {
+            "Type": "TextBox",
+            "Text": "이 프레젠테이션은 JSON을 기반으로 생성되었습니다.",
+            "X": 100,
+            "Y": 120,
+            "Width": 500,
+            "Height": 100,
+            "Font": {
+              "Name": "Arial",
+              "Size": 16,
+              "Color": "DarkGray"
+            }
+          }
+        ],
+        "Background": {
+          "Type": "SolidFill",
+          "Color": "White"
+        }
+      }
+    ]
+  }
+  
