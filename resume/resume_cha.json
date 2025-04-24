@@ -1,0 +1,122 @@
+{
+    "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+    "basics": {
+        "name": "taromilktea00",
+        "label": "Full Stack Developer",
+        "image": "",
+        "email": "",
+        "phone": "",
+        "url": "https://github.com/taromilktea00",
+        "summary": "Enthusiastic full stack developer specializing in building robust web applications and data-driven solutions. Experienced in collaborative projects and committed to delivering high-quality software.",
+        "location": {
+            "address": "",
+            "postalCode": "",
+            "city": "",
+            "countryCode": "KR",
+            "region": ""
+        },
+        "profiles": [
+            {
+                "network": "GitHub",
+                "username": "taromilktea00",
+                "url": "https://github.com/taromilktea00"
+            }
+        ]
+    },
+    "work": [
+        {
+            "name": "SSAFY (Samsung SW Academy For Youth)",
+            "position": "Full Stack Developer (Trainee)",
+            "url": "https://github.com/taromilktea00/ssafy_pjt01",
+            "startDate": "2023-03-01",
+            "endDate": "2024-02-29",
+            "summary": "Completed full stack development projects focusing on web technologies with a strong emphasis on algorithms.",
+            "highlights": [
+                "Developed data-intensive applications using React and Node.js.",
+                "Utilized RESTful APIs to streamline functionality."
+            ]
+        },
+        {
+            "name": "SSAFY (Samsung SW Academy For Youth)",
+            "position": "Data Engineer (Trainee)",
+            "url": "https://github.com/taromilktea00/ssafy_pjt02",
+            "startDate": "2023-03-01",
+            "endDate": "2024-02-29",
+            "summary": "Worked on data engineering projects involving data pipelines and processing.",
+            "highlights": [
+                "Implemented ETL processes for data collection using Python and Pandas.",
+                "Developed data visualization tools to present insights using JavaScript libraries."
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "name": "Project 01",
+            "description": "Full stack application project focusing on data handling and user authentication.",
+            "highlights": [
+                "Created user-friendly interfaces with React.",
+                "Integrated backend services with Node.js and Express.",
+                "Deployed applications using Docker."
+            ],
+            "keywords": ["JavaScript", "React", "Node.js", "Express", "Docker"],
+            "startDate": "2023-03-01",
+            "endDate": "2023-09-01",
+            "url": "https://github.com/taromilktea00/ssafy_pjt01",
+            "roles": ["Frontend Developer", "Backend Developer"],
+            "entity": "SSAFY Projects",
+            "type": "application"
+        },
+        {
+            "name": "Project 02",
+            "description": "Data processing project aimed at extracting insights from large datasets.",
+            "highlights": [
+                "Designed a data pipeline for ETL processes.",
+                "Built an interactive dashboard for data visualization."
+            ],
+            "keywords": ["Python", "Pandas", "JavaScript", "D3.js", "Streamlit"],
+            "startDate": "2023-09-01",
+            "endDate": "2023-12-01",
+            "url": "https://github.com/taromilktea00/ssafy_pjt02",
+            "roles": ["Data Engineer", "Data Scientist"],
+            "entity": "SSAFY Projects",
+            "type": "application"
+        }
+    ],
+    "skills": [
+        {
+            "name": "Programming Languages",
+            "level": "Experienced",
+            "keywords": ["Python", "JavaScript"]
+        },
+        {
+            "name": "Frameworks & Tools",
+            "level": "Experienced",
+            "keywords": ["React", "Node.js", "Express", "Docker"]
+        },
+        {
+            "name": "Data Engineering",
+            "level": "Intermediate",
+            "keywords": ["Pandas", "ETL", "Data Visualization"]
+        }
+    ],
+    "languages": [
+        {
+            "language": "Korean",
+            "fluency": "Native"
+        },
+        {
+            "language": "English",
+            "fluency": "Professional"
+        }
+    ],
+    "interests": [
+        {
+            "name": "Open Source",
+            "keywords": ["Community Contribution", "Hackathons"]
+        },
+        {
+            "name": "Data Science",
+            "keywords": ["Data Analysis", "Machine Learning"]
+        }
+    ]
+}

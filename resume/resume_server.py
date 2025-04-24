@@ -16,7 +16,7 @@ from agents.mcp import MCPServer, MCPServerStdio
 
 
 import json
-with open(os.path.join(ROOT, "resume.json"), "r") as f:
+with open(os.path.join(ROOT, "resume.json"), "r", encoding='UTF8') as f:
     resume = json.load(f)
 
 async def run(mcp_server: MCPServer, directory_path: str):
@@ -29,7 +29,7 @@ async def run(mcp_server: MCPServer, directory_path: str):
     
     user_id = directory_path.split("/")[-1]
 
-    repositories = await Runner.run(starting_agent=agent, input=f"{directory_path}의 모든 repository를 '\n'로 구분해서 나열")
+    repositories = await Runner.run(starting_agent=agent, input=f"{directory_path}의 **모든** repository를 '\n'로 구분해서 나열")
 
     PROMPT = f"""
     You are a potfolio assistant. You are given {directory_path}.
@@ -71,6 +71,7 @@ async def run(mcp_server: MCPServer, directory_path: str):
 async def main():
     # Ask the user for the directory path
     directory_path = "https://github.com/qja1998"
+    # directory_path = "https://github.com/taromilktea00"
 
     async with MCPServerStdio(
         cache_tools_list=True,  # Cache the tools list, for demonstration

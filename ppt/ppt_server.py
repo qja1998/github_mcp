@@ -14,11 +14,17 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 from agents import Agent, Runner, trace, WebSearchTool
 from agents.mcp import MCPServer, MCPServerStdio
 
+import json
+
+with open(r"C:\Users\SSAFY\Desktop\repo\github_mcp\ppt\pptx-compose\example.json", "r", encoding='utf-8') as f:
+    template = json.load(f)
+
 async def run(mcp_servers: List[MCPServer]):
+    print("Running...")
     agent = Agent(
         model=OPENAI_MODEL,
         name="Assistant",
-        instructions=f"Answer questions about the notion documents",
+        instructions=f"Answer questions about json",
         mcp_servers=mcp_servers,
         tools=[WebSearchTool()]
     )
@@ -26,10 +32,12 @@ async def run(mcp_servers: List[MCPServer]):
     print("Agent initialized.")
 
     PROMPT = f"""
-    당신은 ppt 전문가입니다.
+    당신은 json 전문가입니다. 다음 json template는 pptx-compose의 json template입니다.
+    이 template을 바탕으로 사용자가 원하는 pptx를 생성하기 위한 json을 생성해 주세요.
+    사용자가 원하는 pptx의 주제에 맞는 json을 생성해 주세요.
     """
 
-    chat_history = deque([], maxlen=5)
+    chat_history = deque([], maxlen=2)
 
     while True:
         # Ask the user for the git command
@@ -40,7 +48,8 @@ async def run(mcp_servers: List[MCPServer]):
         END_PROMPT = f"""
         history: {chat_history}
         user: {command}"""
-        prompt = PROMPT.format(chat_history=chat_history) + END_PROMPT
+        # prompt = PROMPT.format(chat_history=chat_history) + END_PROMPT + sample
+        prompt = PROMPT + END_PROMPT
         print(prompt)
 
         # Run the command and print the result
@@ -101,7 +110,7 @@ def init_servers():
         name="Filesystem Server, via npx",
         params={
             "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-filesystem", r"C:\Users\kwon\Desktop\repo\github_mcp\ppt\template"],
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/SSAFY/Desktop/repo/github_mcp/ppt/pptx-compose"],
         }
     )
 
@@ -110,10 +119,12 @@ def init_servers():
 async def main():
     # Ask the user for the directory path
     server1, server1_1, server2 = init_servers()
+    print("PPT servers initialized.")
     async with server1 as s1, server1_1 as s1_1, server2 as s2:
         # Create the MCP server and start it
-        mcp_servers = [s1_1]
+        mcp_servers = [s2]
         with trace(workflow_name="MCP PPT Example"):
+            print('t')
             await run(mcp_servers=mcp_servers)
 
 if __name__ == "__main__":
