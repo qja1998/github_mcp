@@ -1,0 +1,13 @@
+
+{
+    "servers": {
+        "mcp-server-deep-research": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@smithery/cli install",
+                "@nickclyde/duckduckgo-mcp-server"
+            ]
+        }
+    }
+}

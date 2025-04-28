@@ -3,13 +3,15 @@ import shutil
 
 import os
 import dotenv
-dotenv.load_dotenv()
+dotenv.load_dotenv(override=True)
 
 from typing import List
 from collections import deque
 
 GITHUB_PERSONAL_ACCESS_TOKEN = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
+
+print(OPENAI_MODEL)
 
 from agents import Agent, Runner, trace, WebSearchTool
 from agents.mcp import MCPServer, MCPServerStdio
@@ -34,6 +36,8 @@ async def run(mcp_servers: List[MCPServer]):
     PROMPT = f"""
     당신은 json 전문가입니다. 다음 json template는 pptx-compose의 json template입니다.
     이 template을 바탕으로 사용자가 원하는 pptx를 생성하기 위한 json을 생성해 주세요.
+    - 항상 template의 구조를 정확하게 유지합니다.
+    - template의 내용을 분석하고, 사용자가 원하는 내용을 적절하게 template에 채워 json을 생성합니다.
     사용자가 원하는 pptx의 주제에 맞는 json을 생성해 주세요.
     """
 
@@ -110,7 +114,7 @@ def init_servers():
         name="Filesystem Server, via npx",
         params={
             "command": "npx",
-            "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/SSAFY/Desktop/repo/github_mcp/ppt/pptx-compose"],
+            "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/SSAFY/Desktop/repo/github_mcp/ppt"],
         }
     )
 
@@ -120,11 +124,10 @@ async def main():
     # Ask the user for the directory path
     server1, server1_1, server2 = init_servers()
     print("PPT servers initialized.")
-    async with server1 as s1, server1_1 as s1_1, server2 as s2:
+    async with server2 as s2:
         # Create the MCP server and start it
         mcp_servers = [s2]
         with trace(workflow_name="MCP PPT Example"):
-            print('t')
             await run(mcp_servers=mcp_servers)
 
 if __name__ == "__main__":

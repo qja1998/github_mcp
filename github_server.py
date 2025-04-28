@@ -3,7 +3,7 @@ import shutil
 
 import os
 import dotenv
-dotenv.load_dotenv()
+dotenv.load_dotenv(override=True)
 ROOT = os.path.abspath(os.path.dirname(__file__))
 
 from collections import deque
@@ -71,22 +71,23 @@ async def main():
     directory_path = "https://github.com/qja1998"
 
     async with MCPServerStdio(
+        name='Github MCP',
         cache_tools_list=True,  # Cache the tools list, for demonstration
         params={
             "command": "docker",
             "args": [
                 "run",
-                "-i",
-                "--rm",
-                "-e",
-                "GITHUB_PERSONAL_ACCESS_TOKEN",
-                "ghcr.io/github/github-mcp-server"
-            ],
+                "-i", "--rm",
+                "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
+                "ghcr.io/github/github-mcp-server",
+                "stdio"
+                ],
             "env": {
                 "GITHUB_PERSONAL_ACCESS_TOKEN": GITHUB_PERSONAL_ACCESS_TOKEN,
             }
-        },
+        }
     ) as server:
+        print("Run server")
         with trace(workflow_name="MCP Git Example"):
             await run(server, directory_path)
 
